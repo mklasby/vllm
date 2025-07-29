@@ -65,6 +65,11 @@ from vllm.utils.torch_utils import (
 )
 from vllm.v1.worker.ubatching import dbo_current_ubatch_id
 
+# START CB
+from .activation_capture_context import ActivationCaptureContext
+# END CB
+
+
 logger = init_logger(__name__)
 
 
@@ -1859,6 +1864,11 @@ class FusedMoE(CustomOp):
                     router_logits,
                     dim=0,
                 )
+
+            # BEGIN CB
+            capture_context = ActivationCaptureContext.get_instance()
+            capture_context.add_router_logits(router_logits)
+            # END CB
 
             # Matrix multiply.
             x = hidden_states_combined if do_naive_dispatch_combine else hidden_states

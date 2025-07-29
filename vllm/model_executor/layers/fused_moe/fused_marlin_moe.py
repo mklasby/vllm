@@ -41,6 +41,10 @@ from vllm.model_executor.layers.quantization.utils.quant_utils import (
 from vllm.platforms import current_platform
 from vllm.scalar_type import ScalarType, scalar_types
 
+# START CB
+from .activation_capture_context import ActivationCaptureContext
+# END CB
+
 
 def _fused_marlin_moe(
     hidden_states: torch.Tensor,
@@ -354,6 +358,12 @@ def fused_marlin_moe(
         input_dtype=input_dtype,
         is_k_full=is_k_full,
     ).view(-1, topk, K)
+
+    # START CB
+    capture_context = ActivationCaptureContext.get_instance()
+    capture_context.chunk_size = None
+    capture_context.add_activations(moe_output, topk_ids, topk_weights)
+    # END CB
 
     if output is None:
         if inplace and not disable_inplace():

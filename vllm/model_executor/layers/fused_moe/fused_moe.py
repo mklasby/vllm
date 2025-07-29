@@ -55,6 +55,10 @@ from vllm.platforms import current_platform
 from vllm.triton_utils import tl, triton
 from vllm.utils.torch_utils import direct_register_custom_op, is_torch_equal_or_newer
 
+# START CB
+from .activation_capture_context import ActivationCaptureContext
+# END CB
+
 logger = init_logger(__name__)
 
 
@@ -1762,6 +1766,11 @@ def fused_experts_impl(
         else:
             raise NotImplementedError(f"Unsupported ocp_mx_scheme={ocp_mx_scheme}")
 
+    # START CB
+    capture_context = ActivationCaptureContext.get_instance()
+    capture_context.chunk_size = CHUNK_SIZE
+    # END CB
+
     for chunk in range((num_tokens // CHUNK_SIZE) + 1):
         begin_chunk_idx, end_chunk_idx = (
             chunk * CHUNK_SIZE,
@@ -1888,6 +1897,10 @@ def fused_experts_impl(
             block_shape=block_shape,
             B_bias=w2_bias,
         )
+
+        # START CB
+        capture_context.add_activations(intermediate_cache3, curr_topk_ids, curr_topk_weights)
+        # END CB
 
         ops.moe_sum(
             intermediate_cache3.view(*intermediate_cache3.size()),
