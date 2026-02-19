@@ -2134,6 +2134,11 @@ class TritonExperts(mk.FusedMoEPermuteExpertsUnpermute):
             B_bias=self.w2_bias,
         )
 
+        # START CB
+        capture_context = ActivationCaptureContext.get_instance()
+        capture_context.add_activations(intermediate_cache3, topk_ids, topk_weights)
+        # END CB
+
         # separate function is required for MoE + LoRA
         self.moe_sum(intermediate_cache3, output)
 

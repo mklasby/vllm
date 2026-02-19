@@ -1865,7 +1865,7 @@ class FusedMoE(CustomOp):
                     dim=0,
                 )
 
-            # BEGIN CB
+            # START CB
             capture_context = ActivationCaptureContext.get_instance()
             capture_context.add_router_logits(router_logits)
             # END CB
