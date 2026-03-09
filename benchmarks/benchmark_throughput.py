@@ -262,6 +262,20 @@ def main(args: argparse.Namespace):
 
 
 if __name__ == "__main__":
+    """
+    python examples/benchmarks/benchmark_throughput_vllm.py \
+        --backend vllm \
+        --dataset /path/to/dataset.json \
+        --input-len 32 \
+        --output-len 32 \
+        --num-prompts 10 \
+        --model facebook/opt-125m \
+        --tokenizer facebook/opt-125m \
+        --tp 1 \
+        --trust-remote-code \
+        --output-json ./throughput.json
+            
+    """
     parser = FlexibleArgumentParser(description="Benchmark the throughput.")
     parser.add_argument("--backend",
                         type=str,
@@ -313,7 +327,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--dtype',
         type=str,
-        default='auto',
+        default='bfloat16',
         choices=['auto', 'half', 'float16', 'bfloat16', 'float', 'float32'],
         help='data type for model weights and activations. '
         'The "auto" option will use FP16 precision '
